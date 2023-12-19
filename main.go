@@ -3,6 +3,10 @@ package main
 import "fmt"
 import "os"
 import "net/http"
+import "time"
+
+const monitoramento = 3
+const delay = 10  //minutos
 
 func main(){
     exibiIntroducao()
@@ -52,10 +56,25 @@ func leComando() int {
 
 func iniciarMonitoramento(){
     fmt.Println("Monitorando...")
-    site := "https://www.alura.com.br/"
-    resp, _ := http.Get(site)
-    //fmt.Println(resp)
+        
+    sites := []string{"https://www.alura.com.br/", "https://www.tigre.com.br/", "https://g1.globo.com/" }
 
+    for i:= 0; i < monitoramento ; i ++{
+        for i, site:= range sites{
+            fmt.Println("Testando site", i, ":", site)
+            testaSite(site)
+        }
+        time.Sleep(delay * time.Minute) 
+    }
+        
+
+    fmt.Println("")
+    
+}
+
+func testaSite(site string){
+    resp, _ := http.Get(site)
+    
     if resp.StatusCode == 200{
         fmt.Println("Site", site, "foi carregado com sucesso!")
     }else{
