@@ -1,9 +1,14 @@
 package main
 
-import "fmt"
-import "os"
-import "net/http"
-import "time"
+import (
+    "fmt"
+    "os"
+    "net/http"
+    "time"
+    "io/ioutil"
+    "bufio"
+    
+)
 
 const monitoramento = 3
 const delay = 10  //minutos
@@ -56,8 +61,8 @@ func leComando() int {
 
 func iniciarMonitoramento(){
     fmt.Println("Monitorando...")
-        
-    sites := []string{"https://www.alura.com.br/", "https://www.tigre.com.br/", "https://g1.globo.com/" }
+      
+    sites := leSitesDoArquivo()
 
     for i:= 0; i < monitoramento ; i ++{
         for i, site:= range sites{
@@ -73,12 +78,47 @@ func iniciarMonitoramento(){
 }
 
 func testaSite(site string){
-    resp, _ := http.Get(site)
+    resp, err := http.Get(site)
+    
+    if != nil {
+        fmt.Println("Ocorreu um erro:", err)
+    }
     
     if resp.StatusCode == 200{
         fmt.Println("Site", site, "foi carregado com sucesso!")
     }else{
-        fmt.Println("Site", site, "Está com problema, Status code:", resp.StatusCode)
+        fmt.Println("Site", site, "Está com problema. Status code:", resp.StatusCode)
     }
+
+}
+
+func leSitesDoArquivo() []string{
+
+    var sites []string
+
+    arquivo, err := os.Open("sites.txt")
+    
+    if err != nil{
+        fmt.Println("ocorreu um erro", err)
+        
+    }
+
+    leitor := bufio.NewReader(arquivo)
+
+    for {
+        linha, err := leitor.ReadString('\n')
+        linha = strings.TrimSpace(linha)
+
+        sites = append(sites, linha)
+
+        if err == io.EOF{
+            break
+        }
+    }
+        
+
+    arquivo.Close()
+
+    return sites
 
 }
